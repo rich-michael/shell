@@ -73,6 +73,11 @@ while read list ; do
 	                git clone --bare $gitbase/$gerrit
 	                cd $pwd
 	                chown -R gerrit:gerrit $pwd/$git
+#针对replication.config由于错误，不断增加新的同名标签，因此做一个判断
+cat $pwd/etc/replication.config|grep "\[remote \"$gerrit\"\]" 
+if [ $? -eq 0 ];then
+exit
+else
 cat >>$pwd/etc/replication.config<<EOF
 [remote "$gerrit"]
 projects = $git/$gerrit
@@ -82,6 +87,7 @@ push = +refs/tags/*:refs/tags/*
 push = +refs/changes/*:refs/changes/*
 threads = 3
 EOF
+fi
 	        fi
 	done < path.list
 done < manifest.list
